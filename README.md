@@ -6,12 +6,12 @@ A Cinnamon panel applet that shows the performance mode of the **Redmi Book Pro 
 
 ![Three-level panel indicator](assets/indicator-preview.svg)
 
-| Bright bars | Mode | Typical PPT Fast / Slow limits |
-|---|---|---|
-| One | Power saving | 30 / 10 W |
-| Two | Balanced | 45 / 28 W |
-| Three | Performance | 50 / 30 W |
-| Question mark | Unknown | No fresh reading, a read error, or unfamiliar limits |
+| Bright bars | Mode | Earlier PPT Fast / Slow | On AC (verified cycle) |
+|---|---|---|---|
+| One | Power saving | 30 / 10 W | 35 / 20 W |
+| Two | Balanced | 45 / 28 W | 60 / 50 W |
+| Three | Performance | 50 / 30 W | 65 / 54 W |
+| Question mark | Unknown | No fresh reading, a read error, or unfamiliar limits | — |
 
 Hover over the icon for the mode name and power limits. Click it to open the menu. Wait about **10 seconds** after Fn + K for the display to update. The numbers are **power limits**, not the laptop's current power consumption. Mode detection is an estimate based on both limits; other tuning software can affect it.
 
@@ -194,6 +194,6 @@ This leaves `/usr/local/bin/ryzenadj` and its source/build folder in place so ot
 
 The applet does not switch modes or set power limits. The system service runs one fixed command, `ryzenadj --info`, about every 5–8 seconds; the icon reads its status file every 2 seconds. No broad sudo rule, setuid executable, or direct EC write is installed. RyzenAdj telemetry still involves privileged SMU requests: this is **not strictly passive hardware reading**.
 
-Validated on one TM2107: successful 30/10 W telemetry, running timer, and applet loading in Cinnamon. The three-mode cycle, battery operation, and suspend/resume still need a complete hardware acceptance test. Automated tests cover the parser and applet state/IO logic, not the firmware.
+Validated on one TM2107: successful 30/10 W telemetry, running timer, and applet loading in Cinnamon. A complete Fn + K cycle on AC was observed: 35/20 → 60/50 → 65/54 → 35/20 W. Full battery cycling, automatic transitions between AC and battery, and suspend/resume still need a complete hardware acceptance test. Automated tests cover the parser and applet state/IO logic, not the firmware.
 
 See [technical notes and tests](docs/TECHNICAL.md). Project code is under the [MIT license](LICENSE). RyzenAdj is a separate upstream project with its own license; its executable is not shipped here.

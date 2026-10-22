@@ -8,7 +8,12 @@ function assert(v, m) { count++; if (!v) throw new Error(m); }
 function throws(f) { let failed = false; try { f(); } catch (_) { failed = true; } assert(failed, 'must reject'); }
 for (let [f, s, mode] of [[30,10,'eco'],[45,28,'balanced'],[50,30,'performance'],
     [28,9,'eco'],[32,11,'eco'],[43,26,'balanced'],[47,29,'balanced'],
-    [48,29,'performance'],[52,32,'performance'],[45,10,'unknown'],[47.5,29,'unknown']]) {
+    [48,29,'performance'],[52,32,'performance'],[45,10,'unknown'],[47.5,29,'unknown'],
+    [35,20,'eco'],[60,50,'balanced'],[65,54,'performance'],
+    [33,18,'eco'],[37,22,'eco'],[58,48,'balanced'],[62,52,'balanced'],
+    [63,52,'performance'],[67,56,'performance'],
+    [35,10,'unknown'],[30,20,'unknown'],[60,54,'unknown'],[65,50,'unknown'],
+    [37.1,20,'unknown'],[60,47.9,'unknown'],[65,56.1,'unknown']]) {
     assert(state.decode(JSON.stringify({version:1,timestamp:100,ok:true,fast:f,slow:s}),101).mode === mode, 'classification');
 }
 for (let data of [{}, null, {version:1,timestamp:50,ok:true,fast:45,slow:28},
@@ -51,7 +56,10 @@ let mock = {
 };
 let source = ByteArray.toString(GLib.file_get_contents(root + '/applet/redmi-mode@local/applet.js')[1]);
 Reflect.parse(source);
-let factory = new Function('imports', source + '\nreturn main;')(mock);
+let factory = new Function('imports', 'require', source + '\nreturn main;')(mock, path => {
+    if (path !== './state') throw new Error('unexpected module');
+    return state;
+});
 instance = factory({path: root + '/applet/redmi-mode@local'},0,30,1);
 let stage = 0;
 let check = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 20, () => {

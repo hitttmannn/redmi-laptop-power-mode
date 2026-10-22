@@ -8,8 +8,7 @@ const ByteArray = imports.byteArray;
 class RedmiMode extends Applet.IconApplet {
     _init(metadata, orientation, panelHeight, instanceId) {
         super._init(orientation, panelHeight, instanceId);
-        imports.searchPath.unshift(metadata.path);
-        this._state = imports.state;
+        this._state = require('./state');
         this._iconDirectory = metadata.path + "/icons/";
         this._dead = false;
         this._busy = false;

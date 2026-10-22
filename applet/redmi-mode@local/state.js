@@ -1,12 +1,24 @@
 /* Pure state logic, also used by tests under CJS. */
 var names = {eco: 'Экономичный', balanced: 'Сбалансированный',
     performance: 'Производительный', unknown: 'Неизвестно'};
+// Empirical PPT pairs: original readings and a complete Fn+K cycle on AC.
+// Match both limits within one range; never combine different power presets.
 function classify(f, s) {
-    if (f >= 28 && f <= 32 && s >= 9 && s <= 11) return 'eco';
-    if (f >= 43 && f <= 47 && s >= 26 && s <= 29) return 'balanced';
-    if (f >= 48 && f <= 52 && s >= 29 && s <= 32) return 'performance';
+    const ranges = [
+        ['eco', 28, 32, 9, 11],
+        ['balanced', 43, 47, 26, 29],
+        ['performance', 48, 52, 29, 32],
+        ['eco', 33, 37, 18, 22],
+        ['balanced', 58, 62, 48, 52],
+        ['performance', 63, 67, 52, 56]
+    ];
+    for (let [mode, minFast, maxFast, minSlow, maxSlow] of ranges) {
+        if (f >= minFast && f <= maxFast && s >= minSlow && s <= maxSlow)
+            return mode;
+    }
     return 'unknown';
 }
+
 function decode(text, now) {
     let d;
     try { d = JSON.parse(text); } catch (_) { throw new Error('Повреждён файл состояния'); }
