@@ -6,7 +6,7 @@ const Mainloop = imports.mainloop;
 const ByteArray = imports.byteArray;
 const Gettext = imports.gettext;
 // A new catalog name also refreshes gettext's cached misses in a running session.
-const DOMAIN = 'redmi-mode@local-1.0.2';
+const DOMAIN = 'redmi-mode@local-1.0.3';
 function _(message) { return Gettext.dgettext(DOMAIN, message); }
 
 class RedmiMode extends Applet.IconApplet {
@@ -51,9 +51,14 @@ class RedmiMode extends Applet.IconApplet {
                     ' / Slow ' + d.slow.toFixed(1) + ' ' + _('W');
                 if (levels[d.mode])
                     this.set_applet_icon_symbolic_path(this._iconDirectory + 'bars-' + levels[d.mode] + '-symbolic.svg');
+                else if (d.mode === 'limited')
+                    this.set_applet_icon_symbolic_path(this._iconDirectory + 'bars-limited-symbolic.svg');
                 else
                     this.set_applet_icon_symbolic_name('dialog-question');
-                this.set_applet_tooltip(detail + '\n' + _('Estimated from power limits; switch with Fn+K'));
+                let hint = d.mode === 'limited'
+                    ? _('Nonstandard limits; the selected Fn+K mode is not identified')
+                    : _('Estimated from power limits; switch with Fn+K');
+                this.set_applet_tooltip(detail + '\n' + hint);
                 this._status.label.set_text(detail);
             } catch (e) {
                 this._unknown(e.matches && e.matches(Gio.io_error_quark(), Gio.IOErrorEnum.NOT_FOUND)

@@ -11,9 +11,12 @@ A Cinnamon panel applet that shows the performance mode of the **Redmi Book Pro 
 | One | Power saving | 30 / 10 W | 35 / 20 W |
 | Two | Balanced | 45 / 28 W | 60 / 50 W |
 | Three | Performance | 50 / 30 W | 65 / 54 W |
+| Bars with a horizontal line | Limited power | — | Around 35 / 28 W |
 | Question mark | Unknown | No fresh reading, a read error, or unfamiliar limits | — |
 
 Hover over the icon for the mode name and power limits. Click it to open the menu. Wait about **10 seconds** after Fn + K for the display to update. The numbers are **power limits**, not the laptop's current power consumption. Mode detection is an estimate based on both limits; other tuning software can affect it.
+
+The **Limited power** display describes the observed nonstandard 35/28 W limits, rather than assigning a specific Fn + K mode. On the test laptop these limits alternated with 65/54 W while a charger also powered a watch. Charger power sharing is a possible cause, not a diagnosis. The tooltip shows both limits and explains that the selected Fn + K mode cannot be identified. Other unfamiliar pairs still show `?`.
 
 ## Requirements
 
@@ -150,7 +153,7 @@ sudo journalctl -u redmi-mode.service -n 30 --no-pager
 
 Include any “file not found” message too. Do not post passwords or SSH keys. The service intentionally discards RyzenAdj diagnostic noise; if its output is needed, stop the timer, run `sudo /usr/local/bin/ryzenadj --info` once, then start the timer again. Avoid frequent simultaneous hardware polling.
 
-**Numbers are available but the mode is unknown:** both limits must match a known range. Press Fn + K, wait, and note the two values if the problem persists. Other power-tuning software may have changed them.
+**Numbers are available but the mode is unknown:** both limits must match a known range. Press Fn + K, wait, and note the two values if the problem persists. Firmware can change the limits as power availability changes; other power-tuning software can affect them too. A known nonstandard pair around 35/28 W has a separate Limited power display.
 
 The menu item **Refresh readings** (**Обновить показания** in Russian) rereads the latest status file; it does not trigger an immediate hardware reading.
 

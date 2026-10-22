@@ -2,6 +2,6 @@
   "uuid": "redmi-mode@local",
   "name": "Redmi — Power Mode",
   "description": "PPT mode indicator for TM2107; switch modes with Fn+K",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "max-instances": 1
 }

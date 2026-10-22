@@ -13,7 +13,10 @@ for (let [f, s, mode] of [[30,10,'eco'],[45,28,'balanced'],[50,30,'performance']
     [33,18,'eco'],[37,22,'eco'],[58,48,'balanced'],[62,52,'balanced'],
     [63,52,'performance'],[67,56,'performance'],
     [35,10,'unknown'],[30,20,'unknown'],[60,54,'unknown'],[65,50,'unknown'],
-    [37.1,20,'unknown'],[60,47.9,'unknown'],[65,56.1,'unknown']]) {
+    [37.1,20,'unknown'],[60,47.9,'unknown'],[65,56.1,'unknown'],
+    [35,28,'limited'],[33,26,'limited'],[37,30,'limited'],
+    [32.9,28,'unknown'],[37.1,28,'unknown'],[35,25.9,'unknown'],[35,30.1,'unknown'],
+    [100,80,'unknown']]) {
     assert(state.decode(JSON.stringify({version:1,timestamp:100,ok:true,fast:f,slow:s}),101).mode === mode, 'classification');
 }
 for (let data of [{}, null, {version:1,timestamp:50,ok:true,fast:45,slow:28},
@@ -66,8 +69,8 @@ assert(instance.menu.items[1].label.text === (russian ? 'Переключени�
 assert(instance.menu.items[2].label.text === (russian ? 'Обновить показания' : 'Refresh readings'), 'localized refresh action');
 for (let [mode, en, ru] of [['eco', 'Power saving', 'Экономичный'],
     ['balanced', 'Balanced', 'Сбалансированный'], ['performance', 'Performance', 'Производительный'],
-    ['unknown', 'Unknown', 'Неизвестно']]) {
-    assert(imports.gettext.dgettext('redmi-mode@local-1.0.2', state.names[mode]) === (russian ? ru : en), 'localized mode ' + mode);
+    ['unknown', 'Unknown', 'Неизвестно'], ['limited', 'Limited power', 'Ограниченная мощность']]) {
+    assert(imports.gettext.dgettext('redmi-mode@local-1.0.3', state.names[mode]) === (russian ? ru : en), 'localized mode ' + mode);
 }
 let stage = 0;
 let check = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 20, () => {
@@ -77,8 +80,27 @@ let check = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 20, () => {
         assert(instance.tooltip.startsWith(russian ? 'Сбалансированный' : 'Balanced'), 'localized tooltip mode');
         assert(instance.tooltip.includes(russian ? 'Вт' : ' W'), 'localized units');
         assert(instance.tooltip.includes(russian ? 'Оценка по лимитам' : 'Estimated from power limits'), 'localized tooltip hint');
-        GLib.file_set_contents(path, '{'); instance._read(); stage++;
+        GLib.file_set_contents(path, JSON.stringify({version:1,timestamp:Date.now()/1000,ok:true,fast:35,slow:28}));
+        instance._read(); stage++;
         return GLib.SOURCE_CONTINUE;
+    }
+    if (stage === 1) {
+        assert(instance.icon.endsWith('bars-limited-symbolic.svg'), 'nonstandard limits have a distinct icon');
+        assert(instance.tooltip.startsWith(russian ? 'Ограниченная мощность' : 'Limited power'), 'localized limited power name');
+        assert(instance.tooltip.includes(russian ? 'режим Fn+K не определён' : 'Fn+K mode is not identified'), 'does not invent a firmware mode');
+        assert(instance._status.label.text === instance.tooltip.split('\n')[0], 'menu agrees with limited tooltip');
+        GLib.file_set_contents(path, JSON.stringify({version:1,timestamp:Date.now()/1000-30,ok:true,fast:35,slow:28}));
+        instance._read(); stage++; return GLib.SOURCE_CONTINUE;
+    }
+    if (stage === 2) {
+        assert(instance.icon === 'dialog-question', 'stale data cannot retain limited status');
+        assert(instance.tooltip.includes(russian ? 'Данные устарели' : 'Readings are stale'), 'localized stale error');
+        GLib.file_set_contents(path, JSON.stringify({version:1,timestamp:Date.now()/1000,ok:true,fast:65,slow:54}));
+        instance._read(); stage++; return GLib.SOURCE_CONTINUE;
+    }
+    if (stage === 3) {
+        assert(instance.icon.endsWith('bars-3-symbolic.svg'), 'normal profile recovers after power restriction');
+        GLib.file_set_contents(path, '{'); instance._read(); stage++; return GLib.SOURCE_CONTINUE;
     }
     assert(instance.icon === 'dialog-question', 'corrupt read clears previous mode');
     assert(instance.tooltip.includes(russian ? 'Повреждён файл состояния' : 'Status file is corrupted'), 'localized parser error');

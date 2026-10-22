@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: redmi-mode 1.0.2\n"
+"Project-Id-Version: redmi-mode 1.0.3\n"
 "Report-Msgid-Bugs-To: https://github.com/hitttmannn/redmi-laptop-power-mode/issues\n"
 "POT-Creation-Date: 2026-10-22 10:00+0300\n"
 "PO-Revision-Date: 2026-10-22 10:00+0300\n"
@@ -86,3 +86,9 @@ msgstr "Redmi — режим производительности"
 
 msgid "PPT mode indicator for TM2107; switch modes with Fn+K"
 msgstr "Индикатор PPT для TM2107; переключение штатной Fn+K"
+
+msgid "Limited power"
+msgstr "Ограниченная мощность"
+
+msgid "Nonstandard limits; the selected Fn+K mode is not identified"
+msgstr "Нестандартные лимиты; выбранный режим Fn+K не определён"

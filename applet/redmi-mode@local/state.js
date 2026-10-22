@@ -1,6 +1,6 @@
 /* Pure state logic, also used by tests under CJS. */
 var names = {eco: 'Power saving', balanced: 'Balanced',
-    performance: 'Performance', unknown: 'Unknown'};
+    performance: 'Performance', limited: 'Limited power', unknown: 'Unknown'};
 // Empirical PPT pairs: original readings and a complete Fn+K cycle on AC.
 // Match both limits within one range; never combine different power presets.
 function classify(f, s) {
@@ -16,6 +16,8 @@ function classify(f, s) {
         if (f >= minFast && f <= maxFast && s >= minSlow && s <= maxSlow)
             return mode;
     }
+    // Observed 35/28 W while sharing a charger: describe the limits, not an OEM mode.
+    if (f >= 33 && f <= 37 && s >= 26 && s <= 30) return 'limited';
     return 'unknown';
 }
 

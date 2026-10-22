@@ -34,6 +34,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes gettext
           msgfmt --check po/ru.po -o /tmp/redmi-mode.mo
-          cmp /tmp/redmi-mode.mo applet/redmi-mode@local/locale/ru/LC_MESSAGES/redmi-mode@local-1.0.2.mo
+          cmp /tmp/redmi-mode.mo applet/redmi-mode@local/locale/ru/LC_MESSAGES/redmi-mode@local-1.0.3.mo
       - name: systemd unit validation
         run: systemd-analyze verify systemd/redmi-mode.service systemd/redmi-mode.timer
