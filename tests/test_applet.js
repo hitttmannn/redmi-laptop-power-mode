@@ -40,7 +40,7 @@ class Menu {
     destroy() { this.destroyed = true; }
 }
 class Item {
-    constructor(text) { this.label = {set_text(v) { this.text = v; }}; }
+    constructor(text) { this.label = {text, set_text(v) { this.text = v; }}; }
     connect() {}
 }
 let temp = GLib.dir_make_tmp('redmi-test-XXXXXX');
@@ -50,7 +50,7 @@ let mock = {
     ui: {applet: {IconApplet: Base, AppletPopupMenu: Menu}, popupMenu: {PopupMenuItem: Item}},
     gi: {GLib, Gio: {Cancellable: Gio.Cancellable, IOErrorEnum: Gio.IOErrorEnum,
         io_error_quark: Gio.io_error_quark, File: {new_for_path() {return Gio.File.new_for_path(path);}}}},
-    byteArray: ByteArray, state, searchPath: [],
+    byteArray: ByteArray, gettext: imports.gettext, state, searchPath: [],
     mainloop: {timeout_add_seconds(s, cb) {assert(s === 2, 'cheap polling'); activeTimers.add(42); return 42;},
         source_remove(id) {activeTimers.delete(id); removed++;}}
 };
@@ -61,15 +61,27 @@ let factory = new Function('imports', 'require', source + '\nreturn main;')(mock
     return state;
 });
 instance = factory({path: root + '/applet/redmi-mode@local'},0,30,1);
+const russian = ARGV[1] === 'ru';
+assert(instance.menu.items[1].label.text === (russian ? 'Переключение: Fn+K' : 'Switch modes: Fn+K'), 'localized switch hint');
+assert(instance.menu.items[2].label.text === (russian ? 'Обновить показания' : 'Refresh readings'), 'localized refresh action');
+for (let [mode, en, ru] of [['eco', 'Power saving', 'Экономичный'],
+    ['balanced', 'Balanced', 'Сбалансированный'], ['performance', 'Performance', 'Производительный'],
+    ['unknown', 'Unknown', 'Неизвестно']]) {
+    assert(imports.gettext.dgettext('redmi-mode@local-1.0.2', state.names[mode]) === (russian ? ru : en), 'localized mode ' + mode);
+}
 let stage = 0;
 let check = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 20, () => {
     if (instance._busy) return GLib.SOURCE_CONTINUE;
     if (stage === 0) {
         assert(instance.icon.endsWith('bars-2-symbolic.svg'), 'async read renders balanced');
+        assert(instance.tooltip.startsWith(russian ? 'Сбалансированный' : 'Balanced'), 'localized tooltip mode');
+        assert(instance.tooltip.includes(russian ? 'Вт' : ' W'), 'localized units');
+        assert(instance.tooltip.includes(russian ? 'Оценка по лимитам' : 'Estimated from power limits'), 'localized tooltip hint');
         GLib.file_set_contents(path, '{'); instance._read(); stage++;
         return GLib.SOURCE_CONTINUE;
     }
     assert(instance.icon === 'dialog-question', 'corrupt read clears previous mode');
+    assert(instance.tooltip.includes(russian ? 'Повреждён файл состояния' : 'Status file is corrupted'), 'localized parser error');
     GLib.unlink(path); instance._read();
     instance.on_applet_removed_from_panel();
     assert(instance._dead && instance.menu.destroyed && removed === 1 && activeTimers.size === 0, 'cleanup');

@@ -1,7 +1,7 @@
 {
   "uuid": "redmi-mode@local",
-  "name": "Redmi — режим производительности",
-  "description": "Индикатор PPT для TM2107; переключение штатной Fn+K",
-  "version": "1.0.1",
+  "name": "Redmi — Power Mode",
+  "description": "PPT mode indicator for TM2107; switch modes with Fn+K",
+  "version": "1.0.2",
   "max-instances": 1
 }

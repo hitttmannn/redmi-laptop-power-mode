@@ -89,7 +89,7 @@ mkdir -p ~/.local/share/cinnamon/applets/redmi-mode@local
 cp -R applet/redmi-mode@local/. ~/.local/share/cinnamon/applets/redmi-mode@local/
 ```
 
-No output usually means the copy succeeded. The applet's menus currently use Russian text; the bar icon itself has no letters.
+No output usually means the copy succeeded. Tooltips, menus and errors follow the session language: Russian is available, with English as the fallback. The compiled translation is included in the applet folder; no separate language installation is required. After changing the system language, log out and back in.
 
 ### 5. Install the background reader
 
@@ -121,7 +121,7 @@ The expected answer is **`active`**. Readings will update now and after subseque
 ### 7. Add the icon to the panel
 
 1. Open **System Settings → Applets**.
-2. Find **Redmi — режим производительности**.
+2. Find **Redmi — Power Mode** (it may appear as **Redmi — режим производительности** in Russian).
 3. Select it and press **+** to add it to the panel.
 4. Wait about 10 seconds. Try Fn + K and wait again.
 
@@ -152,7 +152,7 @@ Include any “file not found” message too. Do not post passwords or SSH keys.
 
 **Numbers are available but the mode is unknown:** both limits must match a known range. Press Fn + K, wait, and note the two values if the problem persists. Other power-tuning software may have changed them.
 
-The menu item **Обновить показания** (“Refresh readings”) rereads the latest status file; it does not trigger an immediate hardware reading.
+The menu item **Refresh readings** (**Обновить показания** in Russian) rereads the latest status file; it does not trigger an immediate hardware reading.
 
 ## Updating the applet
 

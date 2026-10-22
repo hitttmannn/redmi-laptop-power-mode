@@ -37,7 +37,7 @@ The applet uses asynchronous Gio reads every 2 seconds and starts no subprocesse
 | Balanced (AC) | 58–62 | 48–52 |
 | Performance (AC) | 63–67 | 52–56 |
 
-Other valid readings produce an unknown mode with the measured limits in the tooltip/menu. These ranges are empirical and do not read STNM. A tuning utility can change PPT independently of the firmware's selected mode. The indicator has three equal vertical bars, with one, two or three active. User-facing strings currently remain Russian.
+Other valid readings produce an unknown mode with the measured limits in the tooltip/menu. These ranges are empirical and do not read STNM. A tuning utility can change PPT independently of the firmware's selected mode. The indicator has three equal vertical bars, with one, two or three active. Messages use gettext with English source strings and a bundled Russian catalog bound to the applet-local locale directory.
 
 ## Tests
 
@@ -45,12 +45,23 @@ From the repository root, on a Mint system with `cjs`:
 
 ```sh
 python3 -m unittest discover -s tests -v
-cjs tests/test_applet.js "$PWD"
+LC_ALL=en_US.UTF-8 LANGUAGE=en cjs tests/test_applet.js "$PWD" en
+LC_ALL=ru_RU.UTF-8 LANGUAGE=ru cjs tests/test_applet.js "$PWD" ru
 systemd-analyze verify systemd/redmi-mode.service systemd/redmi-mode.timer
 ```
 
-Seven Python tests and 39 CJS assertions passed on 2026-10-22. The CJS test uses real Gio/Cancellable asynchronous file IO with a mock Cinnamon shell surface. Tests cover parsing, classification boundaries, command errors/timeouts, fixed arguments, board guard, atomic publication, unsafe paths, freshness and cleanup. The unit verifier reported no errors for the project's units; the development host also emitted unrelated warnings about syncthing@.service.
+Seven Python tests and 49 CJS assertions per locale (English and Russian) passed on 2026-10-22. The CJS test uses real Gio/Cancellable asynchronous file IO with a mock Cinnamon shell surface. Tests cover parsing, classification boundaries, command errors/timeouts, fixed arguments, board guard, atomic publication, unsafe paths, freshness and cleanup. The unit verifier reported no errors for the project's units; the development host also emitted unrelated warnings about syncthing@.service.
 
 GitHub Actions runs Python tests, JavaScript syntax checks, SVG/XML and JSON checks, and unit validation. The full CJS test runs locally on Mint; it is not part of the Ubuntu CI job.
 
 Hardware evidence is limited to a successful 30/10 W sample, active timer and applet loading on one TM2107. The user confirmed the chosen icon appearance. A complete Fn+K cycle on AC was observed: 35/20 → 60/50 → 65/54 → 35/20 W. The extra ranges use a ±2 W tolerance around each AC pair, tested at their boundaries. Both limits must match the same range; the applet does not assume a mode from the charger state alone. Full battery cycling, AC/battery transitions, suspend/resume and actual battery impact have not been fully verified.
+
+## Translations
+
+Edit `po/ru.po` and rebuild the bundled catalog with GNU gettext (`sudo apt install gettext` if msgfmt is missing):
+
+```sh
+msgfmt --check po/ru.po -o applet/redmi-mode@local/locale/ru/LC_MESSAGES/redmi-mode@local-1.0.2.mo
+```
+
+Commit both files. CI checks that the binary catalog matches its source. The two locale tests require en_US.UTF-8 and ru_RU.UTF-8 (`locale -a` lists installed locales). A C locale disables gettext translations even with LANGUAGE=ru. The desktop session language preferences are used; log in again after changing the system language.
