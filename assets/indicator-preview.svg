@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="154" viewBox="0 0 780 154">
+<rect width="780" height="154" rx="12" fill="#24262c"/>
+<rect x="103" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="1"/>
+<rect x="123" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="0.22"/>
+<rect x="143" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="0.22"/>
+<text x="130" y="119" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#e9edf2">Power saving / Экономичный</text>
+<rect x="363" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="1"/>
+<rect x="383" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="1"/>
+<rect x="403" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="0.22"/>
+<text x="390" y="119" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#e9edf2">Balanced / Баланс</text>
+<rect x="623" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="1"/>
+<rect x="643" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="1"/>
+<rect x="663" y="25" width="12" height="48" rx="3" fill="#e9edf2" opacity="1"/>
+<text x="650" y="119" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#e9edf2">Performance / Производительный</text>
+</svg>

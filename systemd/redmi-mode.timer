@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Redmi PPT telemetry every 5 seconds
+
+[Timer]
+OnBootSec=10
+OnUnitInactiveSec=5
+AccuracySec=1
+Unit=redmi-mode.service
+
+[Install]
+WantedBy=timers.target

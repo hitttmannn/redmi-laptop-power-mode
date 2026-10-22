@@ -1,0 +1,33 @@
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python unit tests
+        run: python3 -m unittest discover -s tests -v
+      - name: JavaScript syntax
+        run: |
+          node --check applet/redmi-mode@local/applet.js
+          node --check applet/redmi-mode@local/state.js
+          node --check tests/test_applet.js
+      - name: Metadata and SVG validation
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
+          json.loads(Path('applet/redmi-mode@local/metadata.json').read_text())
+          for path in Path('.').rglob('*.svg'):
+              ET.parse(path)
+          PY
+      - name: systemd unit validation
+        run: systemd-analyze verify systemd/redmi-mode.service systemd/redmi-mode.timer

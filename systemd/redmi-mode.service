@@ -1,0 +1,28 @@
+[Unit]
+Description=Redmi PPT telemetry (fixed ryzenadj --info)
+ConditionPathExists=/usr/local/libexec/redmi-mode/ryzenadj
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python3 -I /usr/local/libexec/redmi-mode/collector.py
+WorkingDirectory=/
+RuntimeDirectory=redmi-mode
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
+UMask=0022
+TimeoutStartSec=5
+KillMode=control-group
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/run/redmi-mode
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_NETLINK
+LockPersonality=yes
+# Do not use PrivateDevices or ProtectKernelTunables here: telemetry may need
+# /dev/mem and PCI config. This is NOT a strict read-only hardware sandbox.
