@@ -177,6 +177,8 @@ The icon will show `?` when its last reading expires. Resume with:
 sudo systemctl start redmi-mode.timer
 ```
 
+If the optional [thermal guard](thermal-guard/README.md#removal-and-rollback) is installed, remove it before uninstalling this project.
+
 Removing the icon from the panel alone does **not** stop the background reader. To remove the whole project, first remove the applet from the panel, then run:
 
 ```sh
@@ -192,6 +194,10 @@ rm -r ~/.local/share/cinnamon/applets/redmi-mode@local
 ```
 
 This leaves `/usr/local/bin/ryzenadj` and its source/build folder in place so other tools can continue using them.
+
+## Optional: 85 °C thermal ceiling
+
+See [Thermal guard](thermal-guard/README.md) for a separate, optional component that restores a maximum configured thermal limit of 85 °C every 30 seconds and checks after resume. It preserves lower limits, leaves power limits alone and does not wake the laptop from sleep. This is periodic restoration, not a continuous temperature guarantee.
 
 ## Hardware access and validation
 

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Queue a check after suspend/hibernate; never block the sleep operation.
+if [ "$1" = post ]; then
+    /usr/bin/systemctl --no-block restart ryzenadj.service
+fi

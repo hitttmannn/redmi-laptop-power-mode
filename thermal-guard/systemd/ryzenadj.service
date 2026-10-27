@@ -1,0 +1,12 @@
+# Optional starting point if ryzenadj.service does not exist; do not overwrite one.
+[Unit]
+Description=RyzenAdj CPU thermal limit (85C)
+After=systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ryzenadj --tctl-temp=85
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

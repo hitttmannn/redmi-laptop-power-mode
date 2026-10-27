@@ -1,0 +1,12 @@
+[Unit]
+Description=Check the 85 C RyzenAdj ceiling every 30 seconds
+
+[Timer]
+OnBootSec=5
+OnUnitInactiveSec=30
+AccuracySec=1
+WakeSystem=no
+Unit=ryzenadj.service
+
+[Install]
+WantedBy=timers.target
