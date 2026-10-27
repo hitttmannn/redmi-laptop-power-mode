@@ -1,0 +1,2 @@
+# Queue a short systemd job; do not run RyzenAdj inside udev.
+ACTION=="change", SUBSYSTEM=="power_supply", KERNEL=="ACAD", RUN+="/usr/bin/systemctl --no-block start ryzenadj.service"

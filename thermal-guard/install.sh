@@ -14,7 +14,8 @@ for target in /usr/local/libexec/redmi-thermal-guard/guard.py \
     /etc/systemd/system/ryzenadj.service.d/85c-guard.conf \
     /etc/systemd/system/redmi-mode.service.d/30-thermal-lock.conf \
     /etc/systemd/system/ryzenadj.timer \
-    /usr/lib/systemd/system-sleep/85-redmi-thermal-guard; do
+    /usr/lib/systemd/system-sleep/85-redmi-thermal-guard \
+    /etc/udev/rules.d/90-redmi-thermal-power.rules; do
     if [ -e "$target" ]; then
         echo "Already exists; not replacing: $target" >&2
         exit 1
@@ -37,7 +38,9 @@ rollback() {
             /etc/systemd/system/redmi-mode.service.d/30-thermal-lock.conf \
             /etc/systemd/system/ryzenadj.timer \
             /usr/lib/systemd/system-sleep/85-redmi-thermal-guard \
-            /usr/local/libexec/redmi-thermal-guard/guard.py
+            /usr/local/libexec/redmi-thermal-guard/guard.py \
+            /etc/udev/rules.d/90-redmi-thermal-power.rules
+        udevadm control --reload-rules 2>/dev/null || true
         systemctl daemon-reload
         systemctl restart ryzenadj.service 2>/dev/null || true
     fi
@@ -52,6 +55,8 @@ install -o root -g root -m 0644 "$package_dir/systemd/85c-guard.conf" /etc/syste
 install -o root -g root -m 0644 "$package_dir/systemd/30-thermal-lock.conf" /etc/systemd/system/redmi-mode.service.d/30-thermal-lock.conf
 install -o root -g root -m 0644 "$package_dir/systemd/ryzenadj.timer" /etc/systemd/system/ryzenadj.timer
 install -o root -g root -m 0755 "$package_dir/85c-resume" /usr/lib/systemd/system-sleep/85-redmi-thermal-guard
+install -o root -g root -m 0644 "$package_dir/90-redmi-thermal-power.rules" /etc/udev/rules.d/90-redmi-thermal-power.rules
+udevadm control --reload-rules
 systemctl daemon-reload
 # Wait for a pre-update telemetry run to finish before the first guarded access.
 while systemctl is-active --quiet redmi-mode.service; do sleep 0.1; done
@@ -59,4 +64,4 @@ systemctl restart ryzenadj.service
 systemctl enable --now ryzenadj.timer
 systemctl is-active --quiet ryzenadj.timer
 cat /run/redmi-mode/thermal.json
-echo 'Installed: 85 C ceiling, 30-second checks, no waking from sleep.'
+echo 'Installed: 90 C on AC / 80 C on battery; power-change and 30-second checks; no waking from sleep.'

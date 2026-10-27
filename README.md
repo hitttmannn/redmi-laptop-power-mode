@@ -195,9 +195,9 @@ rm -r ~/.local/share/cinnamon/applets/redmi-mode@local
 
 This leaves `/usr/local/bin/ryzenadj` and its source/build folder in place so other tools can continue using them.
 
-## Optional: 85 °C thermal ceiling
+## Optional: 90 °C on AC / 80 °C on battery
 
-See [Thermal guard](thermal-guard/README.md) for a separate, optional component that restores a maximum configured thermal limit of 85 °C every 30 seconds and checks after resume. It preserves lower limits, leaves power limits alone and does not wake the laptop from sleep. This is periodic restoration, not a continuous temperature guarantee.
+See [Thermal guard](thermal-guard/README.md) for a separate, optional component that sets a 90 °C thermal target on AC and 80 °C on battery. It reacts to power-source events and resume, and checks every 30 seconds as a fallback. It leaves power limits alone and does not wake the laptop from sleep. This is periodic restoration, not a continuous temperature guarantee.
 
 ## Hardware access and validation
 

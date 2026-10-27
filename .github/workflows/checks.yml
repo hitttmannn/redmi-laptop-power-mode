@@ -20,6 +20,7 @@ jobs:
         run: |
           sh -n thermal-guard/install.sh
           sh -n thermal-guard/85c-resume
+          udevadm verify thermal-guard/90-redmi-thermal-power.rules
       - name: Thermal guard combined systemd units
         run: |
           unit_check_dir=$(mktemp -d)

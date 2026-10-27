@@ -1,5 +1,5 @@
 [Unit]
-Description=Check the 85 C RyzenAdj ceiling every 30 seconds
+Description=Check the RyzenAdj AC/battery thermal target every 30 seconds
 
 [Timer]
 OnBootSec=5

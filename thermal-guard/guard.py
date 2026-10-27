@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Maintain a ceiling of 85 C. Never change power limits or raise lower thermal limits."""
+"""Apply a 90 C AC / 80 C battery thermal target without changing power limits."""
 import fcntl
 import json
 import math
@@ -15,7 +15,9 @@ import time
 BINARY = Path('/usr/local/libexec/redmi-mode/ryzenadj')
 RUNTIME = Path('/run/redmi-mode')
 ENV = {'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'LC_ALL': 'C', 'HOME': '/'}
-CEILING = 85.0
+AC_LIMIT = 90.0
+BATTERY_LIMIT = 80.0
+AC_ONLINE = Path('/sys/class/power_supply/ACAD/online')
 
 
 def parse_limit(text):
@@ -36,7 +38,7 @@ def parse_limit(text):
 
 def run_option(option):
     # No shell, no arbitrary arguments, no inherited environment.
-    if option not in ('--info', '--tctl-temp=85'):
+    if option not in ('--info', '--tctl-temp=90', '--tctl-temp=80'):
         raise ValueError('unsupported command')
     result = subprocess.run([str(BINARY), option], cwd='/', env=ENV,
                             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
@@ -46,15 +48,45 @@ def run_option(option):
     return result.stdout.decode('utf-8', errors='replace')
 
 
-def enforce(run=run_option):
-    before = parse_limit(run('--info'))
-    if before <= CEILING:
-        return {'before': before, 'limit': before, 'corrected': False}
-    run('--tctl-temp=85')
-    after = parse_limit(run('--info'))
-    if after > CEILING:
-        raise RuntimeError('firmware did not retain the 85 C ceiling')
-    return {'before': before, 'limit': after, 'corrected': True}
+def power_policy(read_online=None):
+    try:
+        online = (read_online or AC_ONLINE.read_text)().strip()
+        if online == '1':
+            return {'power_source': 'ac', 'target': AC_LIMIT}
+        if online == '0':
+            return {'power_source': 'battery', 'target': BATTERY_LIMIT}
+    except OSError:
+        pass
+    # A missing/unreliable supply sensor must not select the hotter AC target.
+    return {'power_source': 'unknown', 'target': BATTERY_LIMIT}
+
+
+def enforce(run=run_option, read_online=None):
+    original = None
+    corrected = False
+    for attempt in range(2):
+        policy = power_policy(read_online)
+        before = parse_limit(run('--info'))
+        if original is None:
+            original = before
+        target = policy['target']
+        needs_update = before != target
+        if policy['power_source'] == 'unknown' and before <= target:
+            needs_update = False
+        after = before
+        if needs_update:
+            run('--tctl-temp=%d' % target)
+            corrected = True
+            after = parse_limit(run('--info'))
+        # If a cable changed during the transaction, apply the newly selected
+        # policy before reporting success. The timer covers later changes too.
+        if power_policy(read_online) != policy:
+            continue
+        valid = after <= target if policy['power_source'] == 'unknown' else after == target
+        if not valid:
+            raise RuntimeError('firmware did not retain the %d C target' % target)
+        return {'before': original, 'limit': after, 'corrected': corrected, **policy}
+    raise RuntimeError('power source kept changing during the check')
 
 
 def trust(path, directory=False):
@@ -101,7 +133,7 @@ def main():
     if len(sys.argv) != 1 or os.geteuid() != 0:
         raise SystemExit('Run only through the system service; no arguments accepted.')
     trust(RUNTIME, True)
-    report = {'version': 1, 'timestamp': time.time(), 'ok': False, 'ceiling': CEILING}
+    report = {'version': 1, 'timestamp': time.time(), 'ok': False}
     lock = None
     try:
         if Path('/sys/class/dmi/id/board_name').read_text().strip() != 'TM2107':
@@ -113,7 +145,7 @@ def main():
         report.update(enforce())
         report['ok'] = True
         if report['corrected']:
-            print('Restored thermal limit: %.1f -> %.1f C' % (report['before'], report['limit']), flush=True)
+            print('Thermal limit: %.1f -> %.1f C (%s)' % (report['before'], report['limit'], report['power_source']), flush=True)
     except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
         report['error'] = str(error)
         print('Thermal guard: ' + str(error), file=sys.stderr, flush=True)
